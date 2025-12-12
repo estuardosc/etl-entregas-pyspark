@@ -1,0 +1,19 @@
+# ============================================================================
+# Configuración específica para entorno QA
+# ============================================================================
+
+environment: qa
+
+spark:
+  app_name: "ETL_Entregas_Productos_QA"
+  master: "local[*]"
+  log_level: "WARN"
+  configs:
+    spark.sql.shuffle.partitions: 4
+    spark.driver.memory: "2g"
+
+paths:
+  output_base: data/processed/qa
+
+logging:
+  level: INFO

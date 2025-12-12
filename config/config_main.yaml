@@ -1,0 +1,25 @@
+# ============================================================================
+# Configuración específica para entorno MAIN (Producción)
+# ============================================================================
+
+environment: main
+
+spark:
+  app_name: "ETL_Entregas_Productos_PROD"
+  master: "local[*]"  # En producción real: yarn, k8s, etc.
+  log_level: "WARN"
+  configs:
+    spark.sql.shuffle.partitions: 8
+    spark.driver.memory: "4g"
+    spark.executor.memory: "4g"
+
+paths:
+  output_base: data/processed/main
+
+data_quality:
+  remove_null_material: true
+  remove_zero_price: false
+  remove_duplicates: true
+
+logging:
+  level: WARNING

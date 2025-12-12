@@ -1,0 +1,103 @@
+# ============================================================================
+# ETL Entregas de Productos - Configuración Principal
+# ============================================================================
+# Este archivo controla todos los parámetros del flujo de datos usando OmegaConf
+# Los valores pueden ser sobreescritos via CLI: python main.py filters.start_date=20250101
+# ============================================================================
+
+# Configuración de entorno
+environment: develop  # develop | qa | main
+
+# Rutas de archivos
+paths:
+  input_file: data/raw/data_entrega_productos.csv
+  output_base: data/processed
+  # La ruta final será: ${output_base}/${fecha_proceso}/
+
+# Filtros de procesamiento (parametrizables en tiempo de ejecución)
+filters:
+  start_date: "20250101"  # Fecha inicio YYYYMMDD
+  end_date: "20250630"    # Fecha fin YYYYMMDD
+  country: null           # null = todos los países, o código específico: GT, SV, HN, EC, PE, JM
+
+# Configuración de Spark
+spark:
+  app_name: "ETL_Entregas_Productos"
+  master: "local[*]"
+  log_level: "WARN"
+  configs:
+    spark.sql.shuffle.partitions: 4
+    spark.driver.memory: "2g"
+
+# Reglas de negocio
+business_rules:
+  # Conversión de unidades: CS (cajas) = 20 unidades, ST = 1 unidad
+  units_conversion:
+    CS: 20  # Cajas -> Unidades
+    ST: 1   # Unidades -> Unidades
+  
+  # Clasificación de tipos de entrega
+  delivery_types:
+    routine:
+      - ZPRE
+      - ZVE1
+    bonus:
+      - Z04
+      - Z05
+    # Tipos excluidos: COBR y cualquier otro no listado
+
+# Configuración de calidad de datos
+data_quality:
+  # Registros a eliminar
+  remove_null_material: true      # Eliminar registros sin código de material
+  remove_zero_price: false        # Mantener precios en cero (pueden ser bonificaciones)
+  remove_duplicates: true         # Eliminar registros completamente duplicados
+  
+  # Validaciones
+  validate_date_format: true
+  validate_country_codes: true
+  valid_countries:
+    - GT  # Guatemala
+    - SV  # El Salvador
+    - HN  # Honduras
+    - EC  # Ecuador
+    - PE  # Perú
+    - JM  # Jamaica
+
+# Columnas de salida (estándar snake_case)
+output_schema:
+  column_mapping:
+    pais: codigo_pais
+    fecha_proceso: fecha_proceso
+    transporte: id_transporte
+    ruta: id_ruta
+    tipo_entrega: codigo_tipo_entrega
+    material: codigo_material
+    precio: precio_unitario
+    cantidad: cantidad_original
+    unidad: unidad_original
+  
+  # Columnas adicionales calculadas
+  additional_columns:
+    - cantidad_unidades        # Cantidad convertida a unidades
+    - categoria_entrega        # RUTINA o BONIFICACION
+    - es_entrega_rutina        # Flag booleano
+    - es_entrega_bonificacion  # Flag booleano
+    - precio_total             # precio_unitario * cantidad_unidades
+    - fecha_procesamiento_etl  # Timestamp de ejecución del ETL
+    - nombre_pais              # Nombre completo del país
+
+# Mapeo de nombres de países
+country_names:
+  GT: Guatemala
+  SV: El Salvador
+  HN: Honduras
+  EC: Ecuador
+  PE: Perú
+  JM: Jamaica
+
+# Configuración de logging
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/etl_entregas.log

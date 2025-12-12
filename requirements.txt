@@ -1,0 +1,18 @@
+# ETL Entregas de Productos - Dependencias
+# =========================================
+
+# Core
+pyspark>=3.4.0
+omegaconf>=2.3.0
+
+# Utilidades
+pyyaml>=6.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Calidad de código (opcional)
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0

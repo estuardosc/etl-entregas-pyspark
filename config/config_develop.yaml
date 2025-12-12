@@ -1,0 +1,20 @@
+# ============================================================================
+# Configuración específica para entorno DEVELOP
+# ============================================================================
+# Hereda de config.yaml y sobreescribe valores específicos
+
+environment: develop
+
+spark:
+  app_name: "ETL_Entregas_Productos_DEV"
+  master: "local[*]"
+  log_level: "INFO"
+  configs:
+    spark.sql.shuffle.partitions: 2
+    spark.driver.memory: "1g"
+
+paths:
+  output_base: data/processed/develop
+
+logging:
+  level: DEBUG
